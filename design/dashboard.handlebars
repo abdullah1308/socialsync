@@ -1,0 +1,40 @@
+<div class="stream">
+<header>
+    <span>{{prefs.icons.latest}} Latest</span>
+    <a href="/private" id="newPosts" class="unread" hidden></a>
+</header>
+<div id="home_stream">
+    {{#if activitystream}}
+        {{#each activitystream}}
+            {{#with this}}
+                <div class="activity">
+                    {{#if boost}}
+                        <div class="boost">
+                        🚀 boosted by <a href="/private/feeds/{{getUsername booster.id}}">{{booster.name}}</a>
+                        </div>
+                    {{/if}}
+                    {{> note note=note me=../me}}
+                </div>
+            {{/with}}
+        {{/each}}
+    {{else}}
+        <div class="empty">
+            <p>Follow some people to fill your feed with posts.</p>
+        </div>
+    {{/if}}
+</div>
+
+
+{{#if next}}
+<a href="/private?offset={{next}}" class="moreLink">More</a>
+{{/if}}
+</div>
+<script>
+    // take note of the most recent post date
+    {{#isEq offset "0"}}
+    {{#each ../activitystream}} {{#if @first}} 
+    app.latestPost("{{or this.boost.published this.note.published}}");
+    {{/if}}{{/each}}
+    {{/isEq}}
+    app.pollForPosts();
+</script>

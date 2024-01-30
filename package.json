@@ -1,0 +1,61 @@
+{
+  "name": "socialsync",
+  "version": "0.0.1",
+  "description": "",
+  "keywords": [
+    "fediverse"
+  ],
+  "homepage": "",
+  "bugs": {},
+  "repository": {},
+  "license": "",
+  "author": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "prepare": "husky install",
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "copy-env-cli",
+    "lint": "eslint lib/. && prettier --check lib/.",
+    "lint:fix": "eslint lib/. --fix && prettier --write lib/."
+  },
+  "engines": {
+    "node": "16.x"
+  },
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "cookie-parser": "^1.4.6",
+    "copy-env-cli": "^1.0.0",
+    "cors": "^2.8.4",
+    "debug": "^4.3.4",
+    "dotenv": "^16.0.3",
+    "express": "^4.16.3",
+    "express-basic-auth": "^1.1.5",
+    "express-handlebars": "^6.0.6",
+    "glob": "^8.0.3",
+    "husky": "^8.0.3",
+    "markdown-it": "^13.0.1",
+    "md5": "^2.3.0",
+    "moment": "^2.29.4",
+    "node-fetch": "^3.3.0",
+    "queue-promise": "^2.2.1",
+    "rss-generator": "^0.0.3"
+  },
+  "devDependencies": {
+    "eslint": "^8.32.0",
+    "eslint-config-prettier": "^8.6.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-n": "^15.6.1",
+    "eslint-plugin-promise": "^6.1.1",
+    "lint-staged": "^13.1.0",
+    "prettier": "^2.8.3"
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  }
+}

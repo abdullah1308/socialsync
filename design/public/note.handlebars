@@ -1,0 +1,60 @@
+<div class="stream">
+    <div class="follow_box">
+        <p>
+            Follow this site on Mastodon or other fediverse clients: 
+            <input type="text" value="{{user}}@{{domain}}" size="50"/>
+        </p>
+    </div>
+<header class="back">
+    <a  href="#" onclick="history.back(); return false;"><img src="{{actor.icon.url}}" class="avatar"></a>
+    <a href="#" onclick="history.back(); return false;">Back to {{actor.preferredUsername}}</a>
+</header>
+{{#each activitystream}}
+<div class="activity">
+    {{#with this}}
+        <div class="header">
+            {{> avatar actor=actor public=true}}
+            <div>
+                <div><strong>{{actor.preferredUsername}}</strong></div>
+                {{getUsername actor.id}}
+            </div>
+        </div>
+        {{#if note.summary}}
+        <div class="content_warning">
+            content warning: {{note.summary}}
+        </div>
+        {{/if}}
+        <div class="content">
+            {{{note.content}}}
+
+            {{#each note.attachment}}
+                <div class="attachment">
+                    {{#isImage mediaType}}
+                    <a href="{{../url}}" target="_blank"><img src="{{../url}}" alt="{{../name}}" /></a>
+                    {{/isImage}}
+                    {{#isVideo mediaType}}
+                    <video role="application" src="{{../url}}" controls type="{{../mediaType}}"></video>
+                    {{/isVideo}}
+                </div>
+            {{/each}}
+            <footer>
+                <div class="tools">
+                    {{#if stats}}
+                        <div>
+                            ↩️ {{ stats.replies }}
+                        </div>
+                        <div>
+                            🔁 {{ stats.boosts }}
+                        </div>
+                        <div>
+                            ⭐️ {{ stats.likes }}
+                        </div>
+                    {{/if}}
+                </div>
+                <a href="{{note.url}}" class="permalink">{{timesince note.published}}</a>
+            </footer>
+        </div>
+    {{/with}}
+</div>
+{{/each}}
+</div>

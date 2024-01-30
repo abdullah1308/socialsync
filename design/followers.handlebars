@@ -1,0 +1,15 @@
+<div class="stream">
+<header>
+    <span>🤷🏽‍♂️ Followers</span>
+</header>
+
+{{#each followers}}
+    <div class="activity">
+        {{> personCard actor=this}}
+    </div>
+{{/each}}
+</div>
+{{> peopleTools}}
+<script>
+    app.pollForPosts();
+</script>
