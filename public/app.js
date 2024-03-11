@@ -190,47 +190,75 @@ const app = {
     console.log('EDIT POST', postId);
     window.location = '/private/post?edit=' + encodeURIComponent(postId);
   },
+  readAttachment: async () => {
+    // read the file into base64, return mimetype and data
+    const files = document.getElementById('attachment').files;
+    return new Promise((resolve, reject) => {
+        if (files && files[0]) {
+            const f = files[0];   // only read the first file
+            const reader = new FileReader();
+            reader.onload = (function(theFile) {
+                return function(e) {
+                    const base64 = btoa(
+                        new Uint8Array(e.target.result)
+                            .reduce((data, byte) => data + String.fromCharCode(byte), '')
+                        );
+                    resolve({type: f.type, data: base64});
+                };
+            })(f);
+            reader.readAsArrayBuffer(f);
+        } else {
+            resolve(null);
+        }
+    });
+  },
   post: () => {
     const post = document.getElementById('post');
     const cw = document.getElementById('cw');
     const inReplyTo = document.getElementById('inReplyTo');
     const to = document.getElementById('to');
+    const description = document.getElementById('description');
     const editOf = document.getElementById('editOf');
 
     const form = document.getElementById('composer_form');
 
     form.disabled = true;
 
-    fetch(
-      '/private/post',
-      'POST',
-      JSON.stringify({
-        post: post.value,
-        cw: cw.value,
-        inReplyTo: inReplyTo.value,
-        to: to.value,
-        editOf: editOf ? editOf.value : null
-      })
-    )
-      .then(newHtml => {
-        // prepend the new post
-        const el = document.getElementById('home_stream') || document.getElementById('inbox_stream');
+    app.readAttachment().then((attachment) => {
+      fetch(
+        '/private/post',
+        'POST',
+        JSON.stringify({
+          post: post.value,
+          cw: cw.value,
+          inReplyTo: inReplyTo.value,
+          to: to.value,
+          attachment,
+          description: description.value,
+          editOf: editOf ? editOf.value : null
+        })
+      )
+        .then(newHtml => {
+          // prepend the new post
+          const el = document.getElementById('home_stream') || document.getElementById('inbox_stream');
+  
+          if (!el) {
+            window.location = '/private/';
+          } else {
+            form.disabled = false;
+          }
+  
+          el.innerHTML = newHtml + el.innerHTML;
+  
+          // reset the inputs to blank
+          post.value = '';
+          cw.value = '';
+        })
+        .catch(err => {
+          console.error(err);
+        });
+    });
 
-        if (!el) {
-          window.location = '/private/';
-        } else {
-          form.disabled = false;
-        }
-
-        el.innerHTML = newHtml + el.innerHTML;
-
-        // reset the inputs to blank
-        post.value = '';
-        cw.value = '';
-      })
-      .catch(err => {
-        console.error(err);
-      });
     return false;
   },
   replyTo: (activityId, mention) => {
