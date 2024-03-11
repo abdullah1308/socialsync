@@ -63,7 +63,8 @@ app.set('views', PATH_TO_TEMPLATES);
 app.set('view engine', 'handlebars');
 app.use(
   bodyParser.json({
-    type: 'application/activity+json'
+    type: 'application/activity+json',
+    limit: '32mb' // allow large bodies as attachments are base64 in JSON
   })
 ); // support json encoded bodies
 app.use(

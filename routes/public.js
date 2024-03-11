@@ -7,7 +7,8 @@ import {
   getNote,
   isMyPost,
   // getAccount,
-  getOutboxPosts
+  getOutboxPosts,
+  readMedia
 } from '../lib/account.js';
 import { getActivity, getLikesForNote, getReplyCountForNote } from '../lib/notes.js';
 import { INDEX } from '../lib/storage.js';
@@ -180,5 +181,16 @@ router.get('/notes/:guid', async (req, res) => {
         user: USERNAME
       });
     }
+  }
+});
+
+router.get('/media/:id', async (req, res) => {
+  const attachment = readMedia(req.params.id);
+  if (attachment) {
+      res.setHeader('Content-Type', attachment.type);
+      const data = Buffer.from(attachment.data, 'base64');
+      res.status(200).send(data);
+  } else {
+      res.status(404).send();
   }
 });

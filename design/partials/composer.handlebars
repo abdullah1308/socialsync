@@ -35,6 +35,8 @@
         {{#if prev}}
         <input id="editOf" value="{{{prev.id}}}" hidden/>
         {{/if}}
+        <input id="attachment" type="file" />
+        <input id="description" type="text" placeholder="alt text" />
         <button id="submit" type="submit">{{@root.prefs.strings.post}}</button>
         </fieldset>
     </form>

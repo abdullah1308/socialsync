@@ -2,6 +2,7 @@ import { getActivity } from '../lib/notes.js';
 import { getActivitySince, getActivityStream, getFullPostDetails, sortByDate } from '../lib/theAlgorithm.js';
 import express from 'express';
 import debug from 'debug';
+import { createHash } from 'crypto';
 import {
   getFollowers,
   getFollowing,
@@ -17,11 +18,14 @@ import {
   isFollowing,
   getInboxIndex,
   getInbox,
-  writeInboxIndex
+  writeInboxIndex,
+  writeMedia
 } from '../lib/account.js';
 import { fetchUser } from '../lib/users.js';
 import { getPrefs, INDEX, searchKnownUsers, updatePrefs } from '../lib/storage.js';
 import { ActivityPub } from '../lib/ActivityPub.js';
+import { encode as blurhashEncode } from 'blurhash';
+import { getSync as imageDataGetSync } from '@andreekeberg/imagedata'
 import { queue } from '../lib/queue.js';
 export const router = express.Router();
 const logger = debug('ono:admin');
@@ -317,7 +321,33 @@ router.get('/post', async (req, res) => {
 
 router.post('/post', async (req, res) => {
   // TODO: this is probably supposed to be a post to /api/outbox
-  const post = await createNote(req.body.post, req.body.cw, req.body.inReplyTo, req.body.to, req.body.editOf);
+
+  let attachment;
+
+  if (req.body.attachment) {
+      // convert attachment.data to raw buffer
+      attachment = {
+          type: req.body.attachment.type,
+          data: Buffer.from(req.body.attachment.data, 'base64'),
+          description: req.body.description || '',
+      };
+
+      // used as filename/id
+      attachment.hash = createHash('md5').update(attachment.data).digest("hex");
+
+      if (attachment.type.split('/')[0] === 'image') {
+          // calculate dimensions and blurhash
+          const imageData = imageDataGetSync(attachment.data);
+          attachment.focalPoint = '0.0,0.0';
+          attachment.width = imageData.width;
+          attachment.height = imageData.height;
+          attachment.blurhash = blurhashEncode(imageData.data, imageData.width, imageData.height, 4, 4);
+      }
+
+      writeMedia(attachment);
+  }
+
+  const post = await createNote(req.body.post, req.body.cw, req.body.inReplyTo, req.body.to, req.body.editOf, attachment);
   if (post.directMessage === true) {
     // return html partial of the new post for insertion in the feed
     res.status(200).render('partials/dm', {
